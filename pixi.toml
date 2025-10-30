@@ -1,0 +1,24 @@
+[workspace]
+authors = ["Alfredo <alfredo.hernandez@ug.uchile.cl>"]
+channels = ["conda-forge"]
+name = "4targets"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.14.*"
+
+[pypi-dependencies]
+stable-baselines3 = ">=2.7.0, <3"
+numpy = ">=2.3.4, <3"
+scipy = ">=1.16.3, <2"
+lmfit = ">=1.3.4, <2"
+gymnasium = ">=1.2.1, <2"
+torch = ">=2.9.0, <3"
+tensorboard = ">=2.20.0, <3"
+matplotlib = ">=3.10.7, <4"
+opencv-python = ">=4.11.0.86, <5"
+plotly = ">=6.3.1, <7"
+kaleido = ">=1.1.0, <2"
