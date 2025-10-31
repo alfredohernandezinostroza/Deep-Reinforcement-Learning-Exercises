@@ -87,7 +87,11 @@ def iterate_batches(envs: types.List[gym.Env],
             e.reset()
 
 if __name__ == "__main__":
-    envs = [InputWrapper('Breakout-v4'), InputWrapper('Pong-v4'), InputWrapper('AirRaid-v4')]
+    envs = [
+        InputWrapper(gym.make('Breakout-v4')),
+        InputWrapper(gym.make('Pong-v4')),
+        InputWrapper(gym.make('AirRaid-v4'))
+        ]
     shape = envs[0].observation_space.shape
     device = 'cpu'
     
