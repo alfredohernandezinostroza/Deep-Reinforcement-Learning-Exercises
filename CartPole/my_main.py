@@ -45,7 +45,7 @@ if __name__ == "__main__":
                 # cart_velocity = observation[1]
                 # pole_angle = observation[2]
                 # pole_angular_velocity = observation[3]
-            loss = objective()
-            loss.backward()
-            optimizer.step()
+        loss = objective()
+        loss.backward()
+        optimizer.step()
             
