@@ -2,3 +2,6 @@
 .vscode/
 *video/
 *runs/
+*__pycache__*
+Pong/videos
+Pong/nets
