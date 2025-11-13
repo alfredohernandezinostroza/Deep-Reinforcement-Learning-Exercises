@@ -60,8 +60,9 @@ class GaussianAgent():
         self.state, _info = env.reset()
         self.policy = np.random.normal
 
-    def step(self):
-        action = self.policy(self.mu, self.std)
+    def step(self, target):
+        action = {"position": self.policy(self.mu, self.std),
+                  "target": target}
         next_state, reward, done, truncated, info = self.env.step(action)
         step = Step(self.state, action, next_state, reward, done, truncated, info)
         self.state = next_state
