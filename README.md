@@ -2,6 +2,7 @@
 My collection of exercises to learn RL & DRL
 
 ## Installation
-Using the `pixi` package manager, clone the repo and do:
-
+For now the easiest way is to use the `pixi` package manager
+### 1. Clone the repo
+### 2. Execute the command
 ```pixi install```
