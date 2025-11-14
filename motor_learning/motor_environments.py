@@ -182,7 +182,7 @@ class Targets(gym.Env):
             action = np.array(self.actions_history[-1]["position"])
             target = np.array(self.actions_history[-1]["target"])
             
-            self.ax.plot(action[:,0], action[:,1], '.', color=plt.cm.tab10(target), markersize=8)
+            self.ax.plot(action[0], action[1], '.', color=plt.cm.tab10(target), markersize=8)
             # self.ax.scatter(actions[:,0], actions[:,1], c=targets, cmap='tab10', s=64)
         
         # Optionally, add a legend and grid
