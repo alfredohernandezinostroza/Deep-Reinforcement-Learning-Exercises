@@ -26,10 +26,10 @@ def main():
     env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='rgb_array')
     env = gym.wrappers.RecordVideo(env, Path('motor_learning')/"videos", episode_trigger= lambda _: True)
     agent = [
-    GaussianAgent(env, mu=targets_positions[0,:], std=0.2),
-    GaussianAgent(env, mu=targets_positions[1,:], std=0.2),
-    GaussianAgent(env, mu=targets_positions[2,:], std=0.2),
-    GaussianAgent(env, mu=targets_positions[3,:], std=0.2),
+        GaussianAgent(env, mu=targets_positions[0,:], std=0.2),
+        GaussianAgent(env, mu=targets_positions[1,:], std=0.2),
+        GaussianAgent(env, mu=targets_positions[2,:], std=0.2),
+        GaussianAgent(env, mu=targets_positions[3,:], std=0.2),
     ]
     _, _ = env.reset()
     done = truncated = False
@@ -103,7 +103,10 @@ class Targets(gym.Env):
     
     def render(self):
         if self.fig is None:
-            self.fig = plt.figure(figsize=(5, 5), dpi=80)
+            if self.render_mode == "human":
+                self.fig = plt.figure(figsize=(5, 5), dpi=90)
+            if self.render_mode == "rgb_array":
+                self.fig = plt.figure(figsize=(4.5, 4.5), dpi=200)
             self.ax = self.fig.add_subplot(111)
             self.ax.grid(True)
             
