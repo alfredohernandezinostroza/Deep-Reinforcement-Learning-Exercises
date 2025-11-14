@@ -57,7 +57,8 @@ class GaussianAgent():
         self.env = env
         self.mu = mu
         self.std = std
-        self.state, _info = env.reset()
+        self.state = None
+        # self.state, _info = env.reset()
         self.policy = np.random.normal
 
     def step(self, target):
