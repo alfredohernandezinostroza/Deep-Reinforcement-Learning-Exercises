@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from agents import GaussianAgent
 from pathlib import Path
 import matplotlib
-# from PIL import Image
+from PIL import Image
 from gymnasium.envs.registration import register
 
 register(
@@ -23,9 +23,10 @@ def main():
                      [-0.2546, -0.2546],  # Target 3 (bottom-left)
                      [ 0.2546, -0.2546]], np.float32)
     env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='rgb_array')
+    # env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='human')
     # env = Targets(targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='rgb_array')
     # env = Targets(targets_positions, training_area=(-0.50, 0.50), max_trials=20, render_mode='human')
-    env = gym.wrappers.RecordVideo(env, Path('motor_learning')/"videos")
+    env = gym.wrappers.RecordVideo(env, Path('motor_learning')/"videos", episode_trigger= lambda _: True)
     agent = [
     GaussianAgent(env, mu=targets_positions[0,:], std=0.2),
     GaussianAgent(env, mu=targets_positions[1,:], std=0.2),
@@ -60,6 +61,7 @@ class Targets(gym.Env):
                  render_mode=None 
                  ):
         # super().__init__()
+        assert self.render_mode is None or self.render_mode in ["human", "rgb_array"]
         self.render_mode = render_mode
         if self.render_mode == "rgb_array":
             matplotlib.use('Agg')
@@ -96,12 +98,11 @@ class Targets(gym.Env):
         distance_to_target = np.linalg.norm(action["position"] - self.targets_positions[action["target"]])
         reward = self.reward_function(distance_to_target)
         next_target = self.next_target_generator()
-        if self.render_mode is not None:
-            self.render()
+        # if self.render_mode == "human":
+        #     self.render()
         return next_target, reward, done, truncated, info
     
     def render(self):
-        assert self.render_mode in ["human", "rgb_array"]
         if self.fig == None:
             self.fig = plt.figure(figsize=(5, 5), dpi=80)
             self.ax = self.fig.add_subplot(111)
@@ -117,17 +118,17 @@ class Targets(gym.Env):
             # Draw targets as large colored dots
             for i, pos in enumerate(self.targets_positions):
                 self.ax.plot(pos[0], pos[1], 'o', markersize=20, label=f"Target {i}", color=plt.cm.tab10(i))
-        if not self.actions_history:
-            return
-        last_action = np.array(self.actions_history[-1]["position"])
-        last_target = np.array(self.actions_history[-1]["target"])
-        self.ax.plot(last_action[0], last_action[1], '.', color=plt.cm.tab10(last_target), markersize=8)
-        
+        if len(self.actions_history) > 0:
+            last_action = np.array(self.actions_history[-1]["position"])
+            last_target = np.array(self.actions_history[-1]["target"])
+            self.ax.plot(last_action[0], last_action[1], '.', color=plt.cm.tab10(last_target), markersize=8)
+            print("add action!")
         if self.render_mode == "human":
             plt.ion()  # Interactive mode
             plt.pause(0.1)
         
         if self.render_mode == "rgb_array":
+            print("converting ro image!")
             self.fig.canvas.draw()
             image = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)
             width, height = self.fig.canvas.get_width_height()
@@ -140,10 +141,13 @@ class Targets(gym.Env):
             return image
 
     def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
         self.actions_history = []
         self.state  = self.next_target_generator()
         next_target = self.next_target_generator()
         info = {}
+        # if self.render_mode == "human":
+        #     self.render()
         return next_target, info
     
     # def render(self):
