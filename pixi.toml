@@ -2,7 +2,7 @@
 authors = ["Alfredo <alfredo.hernandez@ug.uchile.cl>"]
 channels = ["conda-forge"]
 name = "4targets"
-platforms = ["linux-64"]
+platforms = ["linux-64", "win-64"]
 version = "0.1.0"
 
 [tasks]
