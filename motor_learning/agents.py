@@ -54,24 +54,27 @@ class Episode():
         self.lists.q_values = list(reversed(q_vals_in_reverse))
         return self.lists.q_values
 
-class GaussianAgent():
-    def __init__(self, env: gym.Env, mu: np.float32, std: np.float32):
-        self.env = env
-        self.mu = mu
-        self.std = std
+class BaseAgent(ABC):
+    """Base agent."""
+    def __init__(self, env: gym.Env):
+        self.env: Targets = env
+        self.rewards_history = []
+        self.discount_Factor = 1.0
         self.state = None
-        # self.state, _info = env.reset()
-        self.policy = np.random.normal
+        self.policy = None
 
-    def step(self, target):
-        action = {"position": self.policy(self.mu, self.std),
-                  "target": target}
+    def act(self, *args, **kwargs):
+        pass
+
+    def step(self, *args, **kwargs):
+        action = self.act(*args, **kwargs)
         next_state, reward, done, truncated, info = self.env.step(action)
         step = Step(self.state, action, next_state, reward, done, truncated, info)
+        self.rewards_history.append(reward)
         self.state = next_state
         return step
 
-    def yield_n_episodes(self, n):
+    def yield_n_episodes(self, n, *args, **kwargs):
         while True:
             episodes: list[Episode] = []
             for i in range(n):
@@ -87,9 +90,27 @@ class GaussianAgent():
                 episodes.append(episode)
             yield episodes
 
-    def reset(self):
+    def reset(self, *args, **kwargs):
         self.state, _info = self.env.reset()
 
+class GaussianAgent(BaseAgent):
+    """Random agent that samples a position according to a gaussian function N(mu,std).
+    
+    The action includes said position and the target the agent was aiming."""
+    def __init__(self, env: gym.Env, mu: np.float32, std: np.float32, discount_Factor: np.float32 = 1.0):
+        super().__init__(env)
+        self.rewards_history = []
+        self.discount_Factor = discount_Factor
+        self.mu = mu
+        self.std = std
+        # self.state, _info = env.reset()
+        self.policy = np.random.normal
+
+    def act(self, target):
+        action = {"position": self.policy(self.mu, self.std),
+                  "target": target}
+        return action
+    
 def episodes_to_tensors(episodes: list[Episode], device: str = 'cpu') -> tuple[torch.Tensor, torch.LongTensor, torch.LongTensor, torch.Tensor, torch.BoolTensor, torch.BoolTensor, torch.Tensor]:
     """"Gives tensors representing concatenated steps from an episode list"""
     all_states = []
