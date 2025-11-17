@@ -111,6 +111,47 @@ class GaussianAgent(BaseAgent):
                   "target": target}
         return action
     
+class ErrorBasedAgentNonRL(BaseAgent):
+    """"Error-based Agent"""
+    def __init__(self, exploration_scale, exploration_threshold, motor_noise_std, learning_rate, discount_Factor: np.float32 = 1.0):
+        self.rewards_history = []
+        self.discount_Factor = discount_Factor
+        self.exploration_scale = exploration_scale
+        self.exploration_threshold = exploration_threshold
+        self.motor_noise_std = motor_noise_std
+        self.learning_rate = learning_rate
+        self.max_error = 1.209 #why? seems completely arbitrary
+        self.mu = np.random.uniform(
+            low=self.env.action_space["position"].low,
+            high=self.env.action_space["position"].high,
+            size=self.env.action_space["position"].shape
+        )
+        self.std
+    def policy(self, target: int):
+        target_history = self.env.actions_history_by_target[target]
+        if len(target_history)==0:
+            exploration = self.exploration_scale
+        else:
+            previous_distance = target_history[-1]
+            normalized_error = min(previous_distance/self.max_error, 1.0)
+            exploration = self.exploration_scale * normalized_error #if there was low error at last episode => low exploration at this episode
+        exploration_noise = np.sqrt(exploration) * np.random.normal([0,0], 1)
+        motor_noise = np.random.normal([0,0], self.motor_noise_std)
+        intended_action_position = np.mean(target_history) + exploration_noise
+        action_position = intended_action_position + motor_noise
+        return action_position
+
+    def act(self, target: int):
+        action = {"position": self.policy(target),
+                  "target": target}
+        return action
+    
+    def get_history_by_target(self):
+        targets_history = []
+        for i in range(self.env.unwrapped.n_targets):
+            current_target_history = [self.env.unwrapped.actions_history]
+
+
 def episodes_to_tensors(episodes: list[Episode], device: str = 'cpu') -> tuple[torch.Tensor, torch.LongTensor, torch.LongTensor, torch.Tensor, torch.BoolTensor, torch.BoolTensor, torch.Tensor]:
     """"Gives tensors representing concatenated steps from an episode list"""
     all_states = []
