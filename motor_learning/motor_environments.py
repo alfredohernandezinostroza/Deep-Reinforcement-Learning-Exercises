@@ -36,6 +36,7 @@ class Targets(gym.Env):
         if self.render_mode == "rgb_array":
             matplotlib.use('Agg')
         else:
+            matplotlib.use('TkAgg')            
             plt.ion()  # Interactive mode
         self.fig = None
         self.ax = None
