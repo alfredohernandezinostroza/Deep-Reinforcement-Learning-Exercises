@@ -32,6 +32,6 @@ def test_with_4_gaussians(mode):
     env.close()
 
 if __name__ == "__main__":
-    # test the environment with 4 Gaussian Agents
-    # test_with_4_gaussians(mode="record")
+    # test the environment with 4 Gaussian Agents, first recording and then in human mode
+    test_with_4_gaussians(mode="record")
     test_with_4_gaussians(mode="interactive")
