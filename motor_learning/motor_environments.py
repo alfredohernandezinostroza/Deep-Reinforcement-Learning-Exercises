@@ -53,6 +53,7 @@ class Targets(gym.Env):
         self.targets_positions = targets_positions
         self.max_trials = max_trials
         self.actions_history = []
+        self.actions_history_by_target = [[]] * self.n_targets
         self.state = None
         self.fig = None
 
@@ -63,6 +64,7 @@ class Targets(gym.Env):
     def step(self, action: Action) -> tuple[int, float, bool, bool, dict]:
         done = False
         self.actions_history.append(action)
+        self.actions_history_by_target[action["target"]].append(action["position"])
         if len(self.actions_history) >= self.max_trials:
             done = True
         truncated = False
