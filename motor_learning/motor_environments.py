@@ -15,31 +15,6 @@ register(
     id="Targets-v0",
     entry_point=f"{__name__}:Targets",
 )
-
-def main():
-    targets_positions = np.asarray(
-                    [[-0.2546,  0.2546],   # Target 1 (top-left)
-                     [ 0.2546,  0.2546],    # Target 2 (top-right)
-                     [-0.2546, -0.2546],  # Target 3 (bottom-left)
-                     [ 0.2546, -0.2546]], np.float32)
-    # env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='human')
-    env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='rgb_array')
-    env = gym.wrappers.RecordVideo(env, Path('motor_learning')/"videos", episode_trigger= lambda _: True)
-    agent = [
-        GaussianAgent(env, mu=targets_positions[0,:], std=0.2),
-        GaussianAgent(env, mu=targets_positions[1,:], std=0.2),
-        GaussianAgent(env, mu=targets_positions[2,:], std=0.2),
-        GaussianAgent(env, mu=targets_positions[3,:], std=0.2),
-    ]
-    _, _ = env.reset()
-    done = truncated = False
-    i = 0
-    while not done and not truncated:
-        step = agent[i%4].step(target=i % 4)
-        print(f"{i}: {step.reward},target={i%4},action={agent[i%4].env.unwrapped.actions_history[-1]['position']}")
-        i+=1
-        done = step.done
-    env.close()
         
 class Action(TypedDict):
     position: np.ndarray
@@ -64,6 +39,8 @@ class Targets(gym.Env):
         self.render_mode = render_mode
         if self.render_mode == "rgb_array":
             matplotlib.use('Agg')
+        else:
+            plt.ion()  # Interactive mode
         self.fig = None
         self.ax = None
         self.img = None
@@ -125,7 +102,6 @@ class Targets(gym.Env):
             last_target = np.array(self.actions_history[-1]["target"])
             self.ax.plot(last_action[0], last_action[1], '.', color=plt.cm.tab10(last_target), markersize=8)
         if self.render_mode == "human":
-            plt.ion()  # Interactive mode
             plt.pause(0.1)
         
         if self.render_mode == "rgb_array":
@@ -133,7 +109,7 @@ class Targets(gym.Env):
             image = np.frombuffer(self.fig.canvas.buffer_rgba(), dtype=np.uint8)
             width, height = self.fig.canvas.get_width_height()
             image = image.reshape((height, width, 4))  # Use actual dimensions
-            image = image[:, :, :3].copy()  # Drop alpha channel for RGB
+            image = image[:, :, :3].copy()  # Drop alpha channel for RGB, and copy to avoid using the same memory adress for all frames
             return image
 
     def reset(self, seed=None, options=None):
@@ -153,6 +129,3 @@ class Targets(gym.Env):
             self.ax  = None
             self.img = None
 
-
-if __name__ == "__main__":
-    main()
