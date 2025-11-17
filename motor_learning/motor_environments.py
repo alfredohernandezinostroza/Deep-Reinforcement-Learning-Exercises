@@ -2,13 +2,9 @@ import gymnasium as gym
 from gymnasium.envs.registration import EnvSpec
 import numpy as np
 from typing import List, Tuple
-from dataclasses import dataclass
 from typing import TypedDict
 import matplotlib.pyplot as plt
-from agents import GaussianAgent
-from pathlib import Path
 import matplotlib
-from PIL import Image
 from gymnasium.envs.registration import register
 
 register(

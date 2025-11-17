@@ -3,6 +3,8 @@ import gymnasium as gym
 import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
+from abc import ABC, abstractmethod
+from motor_environments import Targets
 
 @dataclass
 class Step():

@@ -1,4 +1,4 @@
-from motor_environments import GaussianAgent
+from agents import GaussianAgent
 import numpy as np
 from pathlib import Path
 import gymnasium as gym
