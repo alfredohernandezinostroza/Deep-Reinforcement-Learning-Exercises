@@ -115,6 +115,7 @@ class GaussianAgent(BaseAgent):
     def act(self, target):
         action = {"position": self.policy(self.mu, self.std),
                   "target": target,}
+        action["position"] = np.clip(action["position"], self.env.action_space["position"].low, self.env.action_space["position"].high)
         return action
     
 class ErrorBasedAgentNonRL(BaseAgent):
