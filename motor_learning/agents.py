@@ -114,7 +114,7 @@ class GaussianAgent(BaseAgent):
 
     def act(self, target):
         action = {"position": self.policy(self.mu, self.std),
-                  "target": target}
+                  "target": target,}
         return action
     
 class ErrorBasedAgentNonRL(BaseAgent):
