@@ -4,7 +4,7 @@ from pathlib import Path
 import gymnasium as gym
 from motor_environments import Renderer
 
-def test_with_4_gaussians(mode):
+def test_with_4_gaussians(mode, max_trials=30):
     targets_positions = np.asarray(
                     [[-0.2546,  0.2546],   # Target 1 (top-left)
                      [ 0.2546,  0.2546],    # Target 2 (top-right)
@@ -12,10 +12,11 @@ def test_with_4_gaussians(mode):
                      [ 0.2546, -0.2546]], np.float32)
     assert mode in ["interactive", "record"], "mode should be either \"record\" or \"interactive\""
     if mode == "interactive":
-        env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='human')
+        env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=max_trials, render_mode='human')
     if mode == "record":
-        env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=30, render_mode='rgb_array')
+        env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=max_trials, render_mode='rgb_array')
         env = gym.wrappers.RecordVideo(env, Path('motor_learning')/"tests"/"videos", episode_trigger= lambda _: True, name_prefix="Targets_4_Gaussian_Agents_")
+    # env = gym.wrappers.ClipAction(env)
     agent = [
         GaussianAgent(env, mu=targets_positions[0,:], std=0.2),
         GaussianAgent(env, mu=targets_positions[1,:], std=0.2),
