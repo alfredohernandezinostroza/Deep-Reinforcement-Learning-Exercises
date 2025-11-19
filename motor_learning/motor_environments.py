@@ -32,7 +32,7 @@ class Renderer():
         self.animated_artists = {}
         # Draw targets as large colored dots
         for i, pos in enumerate(initial_points):
-            self.ax.plot(pos[0], pos[1], 'o', markersize=20, label=f"Target {i}", color=plt.cm.tab10(i), alpha=0.9, linewidth=0)
+            self.ax.plot(pos[0], pos[1], 'o', markersize=20, label=f"Target {i}", color=plt.cm.tab10(i), alpha=0.9, linewidth=0, zorder=0)
 
     def set_limits(self, x_min, x_max, y_min=None, y_max=None):
         self.ax.set_xlim(x_min, x_max)
@@ -49,12 +49,12 @@ class Renderer():
             self.animated_artists[animated_points["artist_id"]].set_offsets(animated_points["position"])
             self.animated_artists[animated_points["artist_id"]].set_color('black')
         else:
-            new_artist = self.ax.scatter(x=animated_points["position"][:,0],y=animated_points["position"][:,1], marker='o', color='black', s=30)
+            new_artist = self.ax.scatter(x=animated_points["position"][:,0],y=animated_points["position"][:,1], marker='o', color='black', s=30, zorder=2)
             self.animated_artists[animated_points["artist_id"]] = new_artist
 
     def render(self, point, color):
-        if color:
-            self.ax.plot(point[0], point[1], '.', color=plt.cm.tab10(color), markersize=8)
+        if color is not None:
+            self.ax.plot(point[0], point[1], '.', color=plt.cm.tab10(color), markersize=8, zorder=1)
 
         if self.render_mode == "human":
             plt.pause(0.1)
