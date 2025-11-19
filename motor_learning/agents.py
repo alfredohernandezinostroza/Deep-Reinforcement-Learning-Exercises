@@ -185,12 +185,26 @@ class DataAgent(BaseAgent):
             "target": int(row["target"]),
         }
         return action
+        
+    def _load_mat_file(self, data_path) -> pd.DataFrame:
+        """Load MATLAB .mat file and convert to DataFrame"""
+        mat_data = loadmat(data_path)
+        
+        positions = mat_data['positions'].T  # (MATLAB is column-major)
+        intended_positions = mat_data['intended_positions'].T
+        targets = mat_data['targets'].flatten()
+        
+        # Create DataFrame
+        df = pd.DataFrame({
+            'position': list(positions),
+            'intended_position': list(intended_positions),
+            'target': targets
+        })
     
-    def get_history_by_target(self):
-        targets_history = []
-        for i in range(self.env.unwrapped.n_targets):
-            current_target_history = [self.env.unwrapped.actions_history]
-
+    def reset(self):
+        """Reset to beginning of data"""
+        super().reset()
+        self.current_step = 0
 
 def episodes_to_tensors(episodes: list[Episode], device: str = 'cpu') -> tuple[torch.Tensor, torch.LongTensor, torch.LongTensor, torch.Tensor, torch.BoolTensor, torch.BoolTensor, torch.Tensor]:
     """"Gives tensors representing concatenated steps from an episode list"""
