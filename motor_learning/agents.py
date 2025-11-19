@@ -61,7 +61,9 @@ class BaseAgent(ABC):
         self.rewards_history = []
         self.discount_Factor = 1.0
         self.state = None
-        self.policy = None
+        
+    def policy(self):
+        pass
 
     def act(self, *args, **kwargs):
         pass
