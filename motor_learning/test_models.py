@@ -32,6 +32,8 @@ def test_with_4_gaussians(mode, max_trials=30):
         print(f"{i}: {step.reward},target={i%4},action={agent[i%4].env.unwrapped.actions_history[-1]['position']}")
         i+=1
         done = step.done
+        beliefs = {"artist_id": f"Agent's belief {i%4}","position": agent[i%4].mu+np.random.normal([0,0],0.01)}
+        env.unwrapped.renderer.animate(beliefs)
         env.render()
     env.close()
 
@@ -47,14 +49,14 @@ def test_ErrorBasedAgentNonRL(mode, max_trials=30):
     if mode == "record":
         env = gym.make('Targets-v0', targets_positions=targets_positions, training_area=(-0.50, 0.50), max_trials=max_trials, render_mode='rgb_array')
         env = gym.wrappers.RecordVideo(env, Path('motor_learning')/"tests"/"videos", episode_trigger= lambda _: True, name_prefix="Targets_1_Error-Based_agent_")
-    agent = ErrorBasedAgentNonRL(env,  exploration_scale=0.01, exploration_threshold=0.05, motor_noise_std=0.01, learning_rate=0.05)
+    agent = ErrorBasedAgentNonRL(env,  exploration_scale=0.01, exploration_threshold=0.05, motor_noise_std=0.01, learning_rate=1)
     _, _ = env.reset() #start recording
     history_window = 10
     done = truncated = False
     i = 0
     while not done and not truncated:
         step: Step = agent.step(target=0)
-        if i % 50 == 0:
+        if i % 1 == 0:
             print(f"{i}: {step.reward},action={agent.env.unwrapped.actions_history[-1]['position']}")
         expected_reward = np.mean(np.abs(agent.rewards_history[-history_window:]))
         prediction_error = expected_reward - np.abs(step.reward)
@@ -62,9 +64,6 @@ def test_ErrorBasedAgentNonRL(mode, max_trials=30):
             update_direction = step.action["intended_position"] - agent.mu
             update_magnitude = agent.learning_rate * prediction_error
             agent.mu = np.clip(agent.mu + update_magnitude * update_direction, env.action_space["position"].low, env.action_space["position"].high)
-
-        # step = agent[i%4].step(target=i % 4)
-        # print(f"{i}: {step.reward},target={i%4},action={agent[i%4].env.unwrapped.actions_history[-1]['position']}")
         i+=1
         done = step.done
         beliefs = {"artist_id": "Agent's belief","position": agent.mu}
@@ -80,8 +79,8 @@ def test_ErrorBasedAgentNonRL(mode, max_trials=30):
 if __name__ == "__main__":
     # test the environment with 4 Gaussian Agents, first recording and then in human mode
     # test_with_4_gaussians(mode="record")
-    # test_with_4_gaussians(mode="interactive")
+    # test_with_4_gaussians(mode="interactive", max_trials=300)
     
     #test non RL Error-based Agent
-    test_ErrorBasedAgentNonRL(mode="record", max_trials=300)
-    test_ErrorBasedAgentNonRL(mode="interactive", max_trials=300)
+    # test_ErrorBasedAgentNonRL(mode="record", max_trials=300)
+    test_ErrorBasedAgentNonRL(mode="interactive", max_trials=1200)
