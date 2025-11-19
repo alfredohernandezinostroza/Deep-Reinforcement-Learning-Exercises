@@ -128,8 +128,8 @@ class ErrorBasedAgentNonRL(BaseAgent):
             low=self.env.action_space["position"].low,
             high=self.env.action_space["position"].high,
             size=self.env.action_space["position"].shape
-        )
-        self.std
+        ).astype(np.float32)
+
     def policy(self):
         if len(self.rewards_history)==0:
             exploration = self.exploration_scale
