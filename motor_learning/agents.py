@@ -135,18 +135,24 @@ class ErrorBasedAgentNonRL(BaseAgent):
         if len(target_history)==0:
             exploration = self.exploration_scale
         else:
-            previous_distance = target_history[-1]
+            previous_distance = np.abs(self.rewards_history[-1])
             normalized_error = min(previous_distance/self.max_error, 1.0)
             exploration = self.exploration_scale * normalized_error #if there was low error at last episode => low exploration at this episode
         exploration_noise = np.sqrt(exploration) * np.random.normal([0,0], 1)
         motor_noise = np.random.normal([0,0], self.motor_noise_std)
-        intended_action_position = np.mean(target_history) + exploration_noise
-        action_position = intended_action_position + motor_noise
-        return action_position
+        intended_action_position = self.mu + exploration_noise
+        action_position = np.clip(intended_action_position + motor_noise, self.env.action_space["position"].low, self.env.action_space["position"].high)
+        return action_position, intended_action_position
 
     def act(self, target: int):
-        action = {"position": self.policy(target),
-                  "target": target}
+        position, intended_position = self.policy()
+        action = {"position": position,
+                  "target": target,
+                  "intended_position": intended_position ,
+                  }
+        return action
+
+
         return action
     
     def get_history_by_target(self):
