@@ -130,9 +130,8 @@ class ErrorBasedAgentNonRL(BaseAgent):
             size=self.env.action_space["position"].shape
         )
         self.std
-    def policy(self, target: int):
-        target_history = self.env.actions_history_by_target[target]
-        if len(target_history)==0:
+    def policy(self):
+        if len(self.rewards_history)==0:
             exploration = self.exploration_scale
         else:
             previous_distance = np.abs(self.rewards_history[-1])
