@@ -153,6 +153,37 @@ class ErrorBasedAgentNonRL(BaseAgent):
         return action
 
 
+class DataAgent(BaseAgent):
+    def __init__(self, env, data_path: Path, target: int = None):
+        super().__init__(env)
+        self.data: pd.DataFrame = self._load_mat_file(data_path)
+        self.current_step: int = 0
+        self.target = target
+
+    def act(self):  
+        """Get action from pre-recorded data"""
+        
+        if self.target is None:
+            # Original behavior: just get next action
+            if self.current_step >= len(self.data):
+                raise IndexError(f"No more data available (step {self.current_step})")
+            row = self.data.iloc[self.current_step]
+            self.current_step += 1
+        else:
+            # find next action matching target
+            row_target = None
+            while row_target != self.target:
+                if self.current_step >= len(self.data):
+                    raise IndexError(f"No more data available (step {self.current_step})")
+                row = self.data.iloc[self.current_step]
+                row_target = int(row["target"])
+                self.current_step += 1
+        
+        action = {
+            "position": np.asarray(row["position"]),
+            "intended_position": np.asarray(row["intended_position"]),
+            "target": int(row["target"]),
+        }
         return action
     
     def get_history_by_target(self):
