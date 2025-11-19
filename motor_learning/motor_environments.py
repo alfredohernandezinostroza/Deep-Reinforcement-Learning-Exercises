@@ -32,7 +32,7 @@ class Renderer():
         self.animated_artists = {}
         # Draw targets as large colored dots
         for i, pos in enumerate(initial_points):
-            self.ax.plot(pos[0], pos[1], 'o', markersize=20, label=f"Target {i}", color=plt.cm.tab10(i))
+            self.ax.plot(pos[0], pos[1], 'o', markersize=20, label=f"Target {i}", color=plt.cm.tab10(i), alpha=0.9, linewidth=0)
 
     def set_limits(self, x_min, x_max, y_min=None, y_max=None):
         self.ax.set_xlim(x_min, x_max)
