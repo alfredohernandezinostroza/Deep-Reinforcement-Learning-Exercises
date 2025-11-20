@@ -144,7 +144,54 @@ class ErrorBasedAgentNonRL(BaseAgent):
         exploration_noise = np.sqrt(exploration) * np.random.normal([0,0], 1)
         motor_noise = np.random.normal([0,0], self.motor_noise_std)
         intended_action_position = self.mu + exploration_noise
-        action_position = np.clip(intended_action_position + motor_noise, self.env.action_space["position"].low, self.env.action_space["position"].high)
+        action_position = np.clip(intended_action_position + motor_noise, self.env.action_space.low, self.env.action_space.high)
+        return action_position, intended_action_position
+
+    def act(self, target: int):
+        position, intended_position = self.policy()
+        action = ActionWithInfo(
+                    action=position,
+                    info={
+                            "intended_action": intended_position
+                        },
+        )
+        return action
+
+
+class ForagingAgentNonRL(BaseAgent):
+    """"Error-based Agent"""
+    def __init__(self, env: gym.Env, exploration_scale: np.float32, exploration_threshold: np.float32, motor_noise_std: np.float32, learning_rate: np.float32, discount_Factor: np.float32 = 1.0):
+        super().__init__(env)
+        self.rewards_history = []
+        self.discount_Factor = discount_Factor
+        self.exploration_scale = exploration_scale
+        self.exploration_threshold = exploration_threshold
+        self.motor_noise_std = motor_noise_std
+        self.learning_rate = learning_rate
+        self.is_exploring = True
+        self.max_error = 1.209 #why? seems completely arbitrary
+        self.mu = np.random.uniform(
+            low=self.env.action_space.low,
+            high=self.env.action_space.high,
+            size=self.env.action_space.shape
+        ).astype(np.float32)
+
+    def policy(self):
+        if not len(self.rewards_history)==0 and self.rewards_history[-1] < self.exploration_threshold:
+            exploration = 0
+            self.is_exploring = False
+        else:
+            if len(self.rewards_history)==0:
+                exploration = self.exploration_scale
+            else:
+                previous_distance = np.abs(self.rewards_history[-1])
+                normalized_error = min(previous_distance/self.max_error, 1.0)
+                exploration = self.exploration_scale * normalized_error 
+            self.is_exploring = True
+        exploration_noise = np.sqrt(exploration) * np.random.normal([0,0], 1)
+        motor_noise = np.random.normal([0,0], self.motor_noise_std)
+        intended_action_position = self.mu + exploration_noise
+        action_position = np.clip(intended_action_position + motor_noise, self.env.action_space.low, self.env.action_space.high)
         return action_position, intended_action_position
 
     def act(self, target: int):
