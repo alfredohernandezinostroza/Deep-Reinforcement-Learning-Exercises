@@ -5,6 +5,7 @@ from typing import List, Tuple, TypedDict, Dict
 import matplotlib.pyplot as plt
 import matplotlib
 from gymnasium.envs.registration import register
+
 register(
     id="Targets-v0",
     entry_point=f"{__name__}:Targets",
@@ -82,9 +83,13 @@ class Targets(gym.Env):
                    reward_threshold=None,
                    nondeterministic=True)
     def __init__(self,
-                 targets_positions: List[np.ndarray],
-                 training_area: Tuple,
-                 max_trials: int,
+                 targets_positions: List[np.ndarray] = np.asarray(
+                    [[-0.2546,  0.2546],   # Target 1 (top-left)
+                     [ 0.2546,  0.2546],    # Target 2 (top-right)
+                     [-0.2546, -0.2546],  # Target 3 (bottom-left)
+                     [ 0.2546, -0.2546]], np.float32),
+                 training_area: Tuple = (-0.50, 0.50),
+                 max_trials: int = 1000,
                  *,
                  render_mode=None,
                  ):
