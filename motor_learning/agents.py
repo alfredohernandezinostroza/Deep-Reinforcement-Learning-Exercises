@@ -4,7 +4,7 @@ import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
 from abc import ABC, abstractmethod
-from motor_environments import Targets
+from motor_environments import Targets, ActionWithInfo
 import pandas as pd
 from pathlib import Path
 from scipy.io import loadmat
@@ -112,10 +112,9 @@ class GaussianAgent(BaseAgent):
         # self.state, _info = env.reset()
         self.policy = np.random.normal
 
-    def act(self, target):
-        action = {"position": self.policy(self.mu, self.std),
-                  "target": target,}
-        action["position"] = np.clip(action["position"], self.env.action_space["position"].low, self.env.action_space["position"].high)
+    def act(self):
+        action = self.policy(self.mu, self.std)
+        action = np.clip(action, self.env.action_space.low, self.env.action_space.high)
         return action
     
 class ErrorBasedAgentNonRL(BaseAgent):
@@ -129,9 +128,9 @@ class ErrorBasedAgentNonRL(BaseAgent):
         self.learning_rate = learning_rate
         self.max_error = 1.209 #why? seems completely arbitrary
         self.mu = np.random.uniform(
-            low=self.env.action_space["position"].low,
-            high=self.env.action_space["position"].high,
-            size=self.env.action_space["position"].shape
+            low=self.env.action_space.low,
+            high=self.env.action_space.high,
+            size=self.env.action_space.shape
         ).astype(np.float32)
 
     def policy(self):
@@ -197,7 +196,6 @@ class ForagingAgentNonRL(BaseAgent):
     def act(self, target: int):
         position, intended_position = self.policy()
         action = {"position": position,
-                  "target": target,
                   "intended_position": intended_position ,
                   }
         return action
