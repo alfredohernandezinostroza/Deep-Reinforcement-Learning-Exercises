@@ -120,12 +120,11 @@ class GaussianAgent(BaseAgent):
     
 class ErrorBasedAgentNonRL(BaseAgent):
     """"Error-based Agent"""
-    def __init__(self, env: gym.Env, exploration_scale: np.float32, exploration_threshold: np.float32, motor_noise_std: np.float32, learning_rate: np.float32, discount_Factor: np.float32 = 1.0):
+    def __init__(self, env: gym.Env, exploration_scale: np.float32, motor_noise_std: np.float32, learning_rate: np.float32, discount_Factor: np.float32 = 1.0):
         super().__init__(env)
         self.rewards_history = []
         self.discount_Factor = discount_Factor
         self.exploration_scale = exploration_scale
-        self.exploration_threshold = exploration_threshold
         self.motor_noise_std = motor_noise_std
         self.learning_rate = learning_rate
         self.max_error = 1.209 #why? seems completely arbitrary
