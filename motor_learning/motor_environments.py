@@ -107,8 +107,6 @@ class Targets(gym.Env):
         # super().__init__()
         self.n_targets = len(targets_positions)
         self.next_target_generator = lambda : np.random.randint(0,self.n_targets)
-        # Actions consist only of a 2D position. The current target is provided
-        # via the observation (`self.state`) rather than being part of the action.
         self.action_space = gym.spaces.Box(low=training_area[0], high=training_area[1], shape=(2,), dtype=np.float32)
         self.observation_space = gym.spaces.Discrete(self.n_targets)
         assert all(self.action_space.contains(position) for position in targets_positions)
@@ -185,3 +183,12 @@ class Targets(gym.Env):
     def close(self):
         self.renderer.close()
 
+class RenderOnStepWrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        if self.env.unwrapped.render_mode == "human":
+            self.env.render()
+        return obs, reward, terminated, truncated, info
