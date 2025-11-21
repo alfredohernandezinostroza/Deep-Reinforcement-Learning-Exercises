@@ -47,15 +47,22 @@ class Renderer():
         else:
             self.ax.set_ylim(x_min, x_max)
 
-    def animate(self, animated_points: Dict):
-        if animated_points["position"].shape == (2,):
-            animated_points["position"] = np.expand_dims(animated_points["position"], axis=0)
-        if self.animated_artists.get(animated_points["artist_id"]):
-            self.animated_artists[animated_points["artist_id"]].set_offsets(animated_points["position"])
-            self.animated_artists[animated_points["artist_id"]].set_color('black')
-        else:
-            new_artist = self.ax.scatter(x=animated_points["position"][:,0],y=animated_points["position"][:,1], marker='o', color='black', s=30, zorder=2)
-            self.animated_artists[animated_points["artist_id"]] = new_artist
+    # def set_artist_data(data):
+    #     artist_id = data["artist_id"]
+    #     points = data["points"]
+
+    def animate(self, animated_points_list: Dict | List[Dict]):
+        if type(animated_points_list) == Dict:
+            animated_points_list = [animated_points_list]
+        for animated_points in animated_points_list:
+            if animated_points["position"].shape == (2,):
+                animated_points["position"] = np.expand_dims(animated_points["position"], axis=0)
+            if self.animated_artists.get(animated_points["artist_id"]):
+                self.animated_artists[animated_points["artist_id"]].set_offsets(animated_points["position"])
+                self.animated_artists[animated_points["artist_id"]].set_color('black')
+            else:
+                new_artist = self.ax.scatter(x=animated_points["position"][:,0],y=animated_points["position"][:,1], marker='o', color='black', s=30, zorder=2)
+                self.animated_artists[animated_points["artist_id"]] = new_artist
 
     def render(self, point, color):
         if color is not None:
