@@ -146,7 +146,7 @@ class ErrorBasedAgentNonRL(BaseAgent):
         action_position = np.clip(intended_action_position + motor_noise, self.env.action_space.low, self.env.action_space.high)
         return action_position, intended_action_position
 
-    def act(self, target: int):
+    def act(self):
         position, intended_position = self.policy()
         action = ActionWithInfo(
                     action=position,
